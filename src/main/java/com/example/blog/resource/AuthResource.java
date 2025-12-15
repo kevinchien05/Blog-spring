@@ -7,6 +7,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,12 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.blog.dto.UserCreateDTO;
 import com.example.blog.dto.UserCreationResult;
+import com.example.blog.model.User;
+import com.example.blog.repository.UserRepository;
 import com.example.blog.service.UserService;
 import com.example.blog.service.VerificationTokenService;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthResource {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private UserService userService;
@@ -53,5 +60,31 @@ public class AuthResource {
             response.put("message", "Invalid or expired verification token.");
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getCurrentUser(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+
+        String email = null;
+
+        if (auth.getPrincipal() instanceof UserDetails userDetails) {
+            email = userDetails.getUsername();
+        }
+
+        // Fallback
+        if (email == null) {
+            email = auth.getName();
+        }
+
+        User user = userRepository.findByEmail(email.toLowerCase());
+        
+        if (user == null) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+
+        return ResponseEntity.ok(user);
     }
 }
