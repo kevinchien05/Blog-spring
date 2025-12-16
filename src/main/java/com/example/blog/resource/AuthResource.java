@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +23,7 @@ import com.example.blog.model.User;
 import com.example.blog.repository.UserRepository;
 import com.example.blog.service.UserService;
 import com.example.blog.service.VerificationTokenService;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -86,5 +88,26 @@ public class AuthResource {
         }
 
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/email")
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
+        User result = userService.checkEmail(email);
+        if (result == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } else {
+            return ResponseEntity.ok(result);
+        }
+    }
+
+    @GetMapping("/email/verification")
+    public void resetVerificationEmail(@RequestParam String email, @RequestParam String token) {
+        userService.resetVerification(email, token);
+    }
+
+    @PutMapping("/change/pass")
+    public ResponseEntity<String> putMethodName(@RequestParam String email, @RequestParam String password) {
+        userService.changePassword(email, password);
+        return ResponseEntity.ok().build();
     }
 }
