@@ -13,4 +13,6 @@ public interface BlogService {
     public Blog editBlog(Long id, BlogDTO dto);
 
     public String deleteBlog(Long id);
+
+    public Blog getBlogDetail(Long id);
 }

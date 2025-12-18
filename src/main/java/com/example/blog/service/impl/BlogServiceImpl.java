@@ -50,4 +50,10 @@ public class BlogServiceImpl implements BlogService {
         return "Success";
     }
 
+    @Override
+    public Blog getBlogDetail(Long id) {
+        Blog result = blogRepository.findById(id).orElseThrow(null);
+        return result;
+    }
+
 }

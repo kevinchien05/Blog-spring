@@ -49,5 +49,11 @@ public class BlogResource {
         String result = blogService.deleteBlog(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/detail")
+    public ResponseEntity<Blog> blogDetail(@RequestParam Long id){
+        Blog result = blogService.getBlogDetail(id);
+        return ResponseEntity.ok(result);
+    }
     
 }
